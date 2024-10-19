@@ -1,6 +1,10 @@
+import os
+from dotenv import load_dotenv
 from pymongo import MongoClient
 
-client = MongoClient('mongodb+srv://octadev:112020a@clusteroctavio.n8a1lsl.mongodb.net/db_residency?retryWrites=true&w=majority&appName=ClusterOctavio')
+load_dotenv()
+
+client = MongoClient(os.getenv("MONGO_URI"))
 
 db = client.db_residency
 
