@@ -1,53 +1,6 @@
-import os
-from dotenv import load_dotenv
-from pymongo import MongoClient
+from services.migration_service import migrate_data
 
-load_dotenv()
+if __name__ == "__main__":
+    excel_file = "RESIDENCIAxlsx.ods"
 
-client = MongoClient(os.getenv("MONGO_URI"))
-
-db = client.db_residency
-
-collection = db.students
-
-student_data = {
-    "no_control": "F14390167",
-    "nombre": {
-        "primero": "Jorge",
-        "apellido_paterno": "Aldana",
-        "apellido_materno": "Limatitla"
-    },
-    "generacion": {
-        "inicio": {"anio": 2014, "semestre": "Agosto"},
-        "fin": {"anio": 2018, "semestre": "Diciembre"}
-    },
-    "actividad_actual": ["trabaja"],
-    "empresa": {
-        "nombre": "STARDUST INC. S.A. DE C.V.",
-        "ubicacion": {
-            "ciudad": "Puebla",
-            "municipio": "Huauchinango",
-            "estado": "Puebla"
-        },
-        "puesto": "Desarrollador de aplicaciones móviles",
-        "años_en_puesto": 3,
-        "tipo_trabajo": "Jefe de área"
-    },
-    "estatus_trabajo": {
-        "tipos": ["contrato"]
-    },
-    "sector": {
-        "categoria": "terciario",
-        "tipo": "privado"
-    },
-    "participacion": "parcial",
-    "fuente_contato": "CONTACTOS PERSONALES"
-}
-
-result = collection.insert_one(student_data)
-print(result.inserted_id)
-
-inserted_student = collection.find_one({"no_control": "F14390167"})
-print(inserted_student)
-
-client.close()
+    migrate_data(excel_file)

@@ -1,13 +1,4 @@
-import os
-from dotenv import load_dotenv
 from typing import List, Optional, Dict
-from pymongo import MongoClient
-
-load_dotenv()
-
-client = MongoClient(os.getenv("MONGO_URI"))
-db = client.db_residency
-students_collection = db.students
 
 class Name:
     def __init__(self, first: str, last: str, middle: Optional[str] = None):
@@ -48,11 +39,10 @@ class Participation:
 class ContactSource:
     def __init__(self, source: str):
         self.source = source
-
+        
+# ! MODEL OF STUDENT        
 class Student:
-    def __init__(self, control_number: str, name: Name, generation: Generation, activity: Activity,
-                 company: Company, employment_status: EmploymentStatus, sector: Sector,
-                 participation: Participation, contact_source: ContactSource):
+    def __init__(self, control_number, name, generation, activity, company, employment_status, sector, participation, contact_source):
         self.control_number = control_number
         self.name = name
         self.generation = generation
@@ -62,7 +52,7 @@ class Student:
         self.sector = sector
         self.participation = participation
         self.contact_source = contact_source
-
+        
     def to_dict(self):
         return {
             "control_number": self.control_number,
@@ -99,29 +89,3 @@ class Student:
                 "source": self.contact_source.source
             }
         }
-
-student_example = Student(
-    control_number="F14390167",
-    name=Name(first="Jorge", last="Aldana", middle="Limatitla"),
-    generation=Generation(
-        start={"year": 2014, "semester": "August"},
-        end={"year": 2018, "semester": "December"}
-    ),
-    activity=Activity(activities=["works"]),
-    company=Company(
-        name="STARDUST INC. S.A. DE C.V.",
-        location={"city": "Puebla", "municipality": "Huauchinango", "state": "Puebla"},
-        position="Mobile Applications Developer",
-        years_in_position=3,
-        job_type="Department Head"
-    ),
-    employment_status=EmploymentStatus(types=["contract"]),
-    sector=Sector(category="tertiary", type="private"),
-    participation=Participation(status="partial"),
-    contact_source=ContactSource(source="PERSONAL CONTACTS")
-)
-
-students_collection.insert_one(student_example.to_dict())
-
-inserted_student = students_collection.find_one({"control_number": "F14390167"})
-print(inserted_student)
