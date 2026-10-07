@@ -16,10 +16,13 @@ usecols_me = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19,
               30, 31, 32, 33, 34, 35, 36, 37, 38, 39, 40, 41, 42, 43, 44]
 
 def migrate_data(excel_file):
-    # db = get_db_connection()
-    # students_collection = db.students
+    db = get_db_connection()
+    students_collection = db.students
     
     df = pd.read_excel(excel_file, usecols=usecols_me, skiprows=3, header=None, names=names_excel)
+    # ? Celdas vacías (NaN) -> None para guardarlas como null en MongoDB
+    df = df.astype(object).where(pd.notna(df), None)
+    migrated = 0
     
     for index, row in df.iterrows():
         control_number = row['NO_CONTROL']
@@ -151,3 +154,10 @@ def migrate_data(excel_file):
         }
 
         print(json.dumps(student_data, indent=4, ensure_ascii=False))
+
+        students_collection.update_one(
+            {"no_control": control_number}, {"$set": student_data}, upsert=True
+        )
+        migrated += 1
+
+    print(f"Migración completa: {migrated} alumnos guardados en {db.name}.students")
